@@ -60,7 +60,6 @@ public class Solver {
 
     // removed int[][] matrix from solve() parameter. 
     public int[][] solve() {
-        int[][] newMatrix = matrix;
         for(int row = 0; row <- matrix.length; row++){
             for(int col = 0; col <- matrix[0].length; col++){
                 int treeHeight = matrix[row][col];
@@ -70,8 +69,8 @@ public class Solver {
                 }
             }
         }
-        
-        return newMatrix;
+
+        return matrix;
     }
 
     public Direction cuttableTreeDirection(int row, int col, int treeHeight){
