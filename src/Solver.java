@@ -1,6 +1,5 @@
 package src;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.LinkedList;
 
@@ -45,8 +44,6 @@ public class Solver {
     public int[][] getMatrix(){
         return matrix;
     }
-
-    // removed int[][] matrix from solve() parameter. 
 
     public int[][] solve(int[][] matrix){
         this.matrix = matrix;
@@ -112,7 +109,7 @@ public class Solver {
         }
     }
 
-    private boolean isInGarden(int row, int col){
+    private boolean inGarden(int row, int col){
         return row >= 0 && row < height && col >= 0 && col < width;
     }
 
@@ -120,22 +117,22 @@ public class Solver {
         for(int i = 1; i < treeHeight; i++){
             switch (dir){
                 case NORTH:
-                    if(isInGarden(row-i, col) && matrix[row-i][col] != 0){
+                    if(inGarden(row-i, col) && matrix[row-i][col] != 0){
                         return true;
                     }
                     break;
                 case SOUTH:
-                    if(isInGarden(row+i, col) && matrix[row+i][col] != 0){
+                    if(inGarden(row+i, col) && matrix[row+i][col] != 0){
                         return true;
                     }
                     break;
                 case WEST:
-                    if(isInGarden(row, col-i) && matrix[row][col-i] != 0){
+                    if(inGarden(row, col-i) && matrix[row][col-i] != 0){
                         return true;
                     }
                     break;
                 case EAST:
-                    if(isInGarden(row, col+i) && matrix[row][col+i] != 0){
+                    if(inGarden(row, col+i) && matrix[row][col+i] != 0){
                         return true;
                     }
                     break;
