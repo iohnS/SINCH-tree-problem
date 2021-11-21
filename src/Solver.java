@@ -1,36 +1,25 @@
 package src;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.LinkedList;
 
 public class Solver {	
     private int width;
     private int height;
     private int[][] matrix;
     public int totalHeight;
+    private List<int []> outPutList = new LinkedList<>();
 
     public Solver(){
-        setup(6, 3);
-        plantTrees();
     }
 
     // width and height of yard is passed,
     // where width is west-east and height is north-south
     public void setup(int width, int height) {
-        this.matrix = new int[height][width];
         this.width = width;
         this.height = height;
     }
-
-    public void plantTrees(){
-        for(int i = 0; i < matrix.length; i++){
-            Arrays.fill(matrix[i], 0);
-        }
-        matrix[0][0] = 6;
-        matrix[2][1] = 3;
-        matrix[2][3] = 3;
-        matrix[2][5] = 3;
-    }
-
 
     public enum Direction {
 		EAST(0),
@@ -53,15 +42,20 @@ public class Solver {
 		}
 	}
 
-
     public int[][] getMatrix(){
         return matrix;
     }
 
     // removed int[][] matrix from solve() parameter. 
-    public int[][] solve() {
-        for(int row = 0; row <- matrix.length; row++){
-            for(int col = 0; col <- matrix[0].length; col++){
+
+    public int[][] solve(int[][] matrix){
+        this.matrix = matrix;
+        return solve();
+    }
+
+    private int[][] solve() {
+        for(int row = 0; row < matrix.length; row++){
+            for(int col = 0; col < matrix[0].length; col++){
                 int treeHeight = matrix[row][col];
                 if(treeHeight > 1){
                     Direction cutDirection = cuttableTreeDirection(row, col, treeHeight);
@@ -69,35 +63,92 @@ public class Solver {
                 }
             }
         }
-
-        return matrix;
+        return outPutList.toArray(new int[outPutList.size()][]);
     }
 
-    public Direction cuttableTreeDirection(int row, int col, int treeHeight){
+    private Direction cuttableTreeDirection(int row, int col, int treeHeight){
         for(Direction d : Direction.values()){
-            if(!(hitTree(row, col, treeHeight, d) && hitFence(row, col, treeHeight, d))){
+            if(!hitTree(row, col, treeHeight, d) && !hitFence(row, col, treeHeight, d)){
                 return d;
             }
         }
         return null;
     }
 
-    public void cutTree(int row, int col, int treeHeight, Direction dir){
+    private void cutTree(int row, int col, int treeHeight, Direction dir){
         if(dir == null){return;}
         totalHeight += treeHeight;
         for(int i = 0; i < treeHeight; i++){
             switch (dir){
                 case NORTH:
                     matrix[row-i][col] = -1;
+                    break;
                 case SOUTH:
                     matrix[row+i][col] = -1;
+                    break;
                 case WEST:
                     matrix[row][col-i] = -1;
+                    break;
                 case EAST:
                     matrix[row][col+i] = -1;
+                    break;
             }
         }
+        outPutList.add(new int []{row, col, dir.toInt()});
     }
+
+    private boolean hitFence(int row, int col, int treeHeight, Direction dir){
+        switch (dir){
+            case NORTH:
+                return row-treeHeight+1 < 0;
+            case SOUTH:
+                return row+treeHeight > height;
+            case WEST:
+                return col-treeHeight+1 < 0;
+            case EAST:
+                return col+treeHeight > width;
+            default:
+                return false;
+        }
+    }
+
+    private boolean isInGarden(int row, int col){
+        return row >= 0 && row < height && col >= 0 && col < width;
+    }
+
+    private boolean hitTree(int row, int col, int treeHeight, Direction dir){
+        for(int i = 1; i < treeHeight; i++){
+            switch (dir){
+                case NORTH:
+                    if(isInGarden(row-i, col) && matrix[row-i][col] != 0){
+                        return true;
+                    }
+                    break;
+                case SOUTH:
+                    if(isInGarden(row+i, col) && matrix[row+i][col] != 0){
+                        return true;
+                    }
+                    break;
+                case WEST:
+                    if(isInGarden(row, col-i) && matrix[row][col-i] != 0){
+                        return true;
+                    }
+                    break;
+                case EAST:
+                    if(isInGarden(row, col+i) && matrix[row][col+i] != 0){
+                        return true;
+                    }
+                    break;
+            }
+        }
+        return false;
+    }
+
+
+}
+
+
+
 
     //Vi kan checka om den krockar mot staket eller träd mot north. Om den gör det så köra opposite. Annars Kör west och ananrs opposite. 
     /**if(hitFence(row, col, treeHeight, dir) && hitTree(row, col, treeHeight, dir)){
@@ -109,53 +160,6 @@ public class Solver {
 }else{
     return true;
 }*/
-
-    
-
-    //The tree hits the fence when row - treeheight < 0 (negative)
-    public boolean hitFence(int row, int col, int treeHeight, Direction dir){
-        switch (dir){
-            case NORTH:
-                return row-treeHeight < 0;
-            case SOUTH:
-                return row+treeHeight > height;
-            case WEST:
-                return col-treeHeight < 0;
-            case EAST:
-                return col+treeHeight > width;
-            default:
-                return false;
-        }
-    }
-
-    //kolla i varje direction om det finns träd/stenar tills längden h. 
-    public boolean hitTree(int row, int col, int treeHeight, Direction dir){
-        for(int i = 0; i < treeHeight; i++){
-            switch (dir){
-                case NORTH:
-                    //if there is a tree or rock the value of the would be 
-                    if(matrix[row-i][col] != 0){
-                        return true;
-                    }
-                case SOUTH:
-                    if(matrix[row+i][col] != 0){
-                        return true;
-                    }
-                case WEST:
-                    if(matrix[row][col-i] != 0){
-                        return true;
-                    }
-                case EAST:
-                    if(matrix[row][col+i] != 0){
-                        return true;
-                    }
-            }
-        }
-        return false;
-
-    }
-
-}
 
 
 /**
