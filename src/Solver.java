@@ -63,6 +63,10 @@ public class Solver {
         return outPutList.toArray(new int[outPutList.size()][]);
     }
 
+    private void recursiveSolve(){
+        
+    }
+
     private Direction cuttableTreeDirection(int row, int col, int treeHeight){
         for(Direction d : Direction.values()){
             if(!hitTree(row, col, treeHeight, d) && !hitFence(row, col, treeHeight, d)){
