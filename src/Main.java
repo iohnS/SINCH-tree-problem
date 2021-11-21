@@ -15,7 +15,7 @@ public class Main {
         solver.setup(6, 6);
         int[][] outMatrix = solver.solve(example2);
         
-        System.out.println(solver.totalHeight);
+        System.out.println(solver.finalHeight);
         int[][] matrix = solver.getMatrix();
         
         for (int i = 0; i < outMatrix.length; i++) {
