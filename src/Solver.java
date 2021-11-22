@@ -1,16 +1,18 @@
 package src;
 
 import java.util.List;
-
 import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Solver {	
     private int width;
     private int height;
-    private int[][] matrix;
+    private int[][] startingMatrix;
     public int finalHeight;
-    private List<int []> outPutList = new LinkedList<>();
-    List<Integer> list;
+    List<int[]> bestMove = new ArrayList<>();
+    public int bestScore = 0;
+    HashMap<Integer, List<int[]>> solutionMap = new HashMap<>();
 
     public Solver(){
     }
@@ -44,27 +46,18 @@ public class Solver {
 	}
 
     public int[][] getMatrix(){
-        return matrix;
+        return startingMatrix;
     }
 
     public int[][] solve(int[][] matrix){
-        this.matrix = matrix;
-        return solve();
-    }
-
-    private int[][] solve(){
-        int treeHeight = 0;
-        int frow = 0;
-        int fcol = 0;
-        while(treeHeight < 2){
-            for(int row = 0; row < matrix.length; row++){
-                for(int col = 0; col < matrix[0].length; col++){
-                    treeHeight = matrix[row][col];
-                }
+        this.startingMatrix = matrix;
+        pleaseWork(0,0,0,matrix, new LinkedList<int[]>());
+        for(int[] i : bestMove){
+            for(int j : i){
+                System.out.println(j);
             }
         }
-        list = recursiveSolve(frow, fcol, treeHeight);
-        return matrix;
+        return bestMove.toArray(new int[0][]);
     }
 
 
@@ -85,61 +78,39 @@ public class Solver {
      * 1. För varje rekursiv vill jag först kolla hitta alla cuttable direcations. Sen cutta i alla de directions. Sen fortsätta till nästa träd. 
      */
 
-    private List<Integer> recursiveSolve(int row, int col, int treeHeight){
-        List<Integer> heightList = new LinkedList<>();
-        for(Direction d : cuttableTreeDirections(row, col, treeHeight)){
-            heightList.add(recursiveSolve(row, col, treeHeight, d));
-        }
-        return heightList;
-    }
 
-    private int recursiveSolve(int row, int col, int totalHeight, Direction dir){
-        if(col >= width-1){
+    private void pleaseWork(int row, int col, int totalHeight, int[][] matrix, List<int[]> moves){
+        if(col >= width){
             row += 1;
             col = 0;
         }
-        if(row >= height-1){return totalHeight;}
-
-        if(matrix[row][col] < 2){
-            return recursiveSolve(row, col+1, totalHeight, dir);
+        if(row >= height){
+            if(bestScore < totalHeight){
+                bestScore = totalHeight;
+                bestMove = moves;
+            }
+            return;
         }
 
-        System.out.println("Row: " + row + "  Col: " + col);
-        cutTree(row, col, matrix[row][col], dir);
+        int currentHeight = matrix[row][col];
+        if(currentHeight < 2){
+            pleaseWork(row, col+1, totalHeight, matrix, moves);
+            return;
+        }
 
-        List<Direction> directions = cuttableTreeDirections(row, col, matrix[row][col]);
+        List<Direction> directions = cuttableTreeDirections(row, col, currentHeight, matrix);
         if(!directions.isEmpty()){
-            for(Direction d : directions){
-                return recursiveSolve(row, col+1, totalHeight, d);
-            }
+            totalHeight += currentHeight;
         }
-
-        return totalHeight;
+        directions.add(null);
+        for(Direction d : directions){
+            cutTree(row, col, currentHeight, d, matrix, moves);
+            pleaseWork(row, col, totalHeight, matrix, moves);
+        }
     }
 
-
-    private List<Direction> cuttableTreeDirections(int row, int col, int treeHeight){
-        List<Direction> directions = new LinkedList<>();
-        for(Direction d : Direction.values()){
-            if(!hitTree(row, col, treeHeight, d) && !hitFence(row, col, treeHeight, d)){
-                directions.add(d);
-            }
-        }
-        return directions;
-    }
-
-    private Direction cuttableTreeDirection(int row, int col, int treeHeight){
-        for(Direction d : Direction.values()){
-            if(!hitTree(row, col, treeHeight, d) && !hitFence(row, col, treeHeight, d)){
-                return d;
-            }
-        }
-        return null;
-    }
-
-    private int[] cutTree(int row, int col, int treeHeight, Direction dir){
-        if(dir == null){return new int[0];}
-        finalHeight += treeHeight;
+    private void cutTree(int row, int col, int treeHeight, Direction dir, int[][] matrix, List<int[]> moves){
+        if(dir == null){return;}
         for(int i = 0; i < treeHeight; i++){
             switch (dir){
                 case NORTH:
@@ -156,9 +127,18 @@ public class Solver {
                     break;
             }
         }
-        return new int []{row, col, dir.toInt()};
+        moves.add(new int []{row, col, dir.toInt()});
     }
 
+    private List<Direction> cuttableTreeDirections(int row, int col, int treeHeight, int[][] matrix){
+        List<Direction> directions = new LinkedList<>();
+        for(Direction d : Direction.values()){
+            if(!hitTree(row, col, treeHeight, d, matrix) && !hitFence(row, col, treeHeight, d)){
+                directions.add(d);
+            }
+        }
+        return directions;
+    }
    
     private boolean hitFence(int row, int col, int treeHeight, Direction dir){
         switch (dir){
@@ -179,7 +159,7 @@ public class Solver {
         return row >= 0 && row < height && col >= 0 && col < width;
     }
 
-    private boolean hitTree(int row, int col, int treeHeight, Direction dir){
+    private boolean hitTree(int row, int col, int treeHeight, Direction dir, int[][] matrix){
         for(int i = 1; i < treeHeight; i++){
             switch (dir){
                 case NORTH:
@@ -207,65 +187,7 @@ public class Solver {
         return false;
     }
 
-    private int[][] solve2() {
-        for(int row = 0; row < matrix.length; row++){
-            for(int col = 0; col < matrix[0].length; col++){
-                int treeHeight = matrix[row][col];
-                if(treeHeight > 1){
-                    Direction cutDirection = cuttableTreeDirection(row, col, treeHeight);
-                    cutTree(row, col, treeHeight, cutDirection);
-                }
-            }
-        }
-        return outPutList.toArray(new int[outPutList.size()][]);
-    }
 
-    private void cutTree2(int row, int col, int treeHeight, Direction dir){
-        if(dir == null){return;}
-        finalHeight += treeHeight;
-        for(int i = 0; i < treeHeight; i++){
-            switch (dir){
-                case NORTH:
-                    matrix[row-i][col] = -1;
-                    break;
-                case SOUTH:
-                    matrix[row+i][col] = -1;
-                    break;
-                case WEST:
-                    matrix[row][col-i] = -1;
-                    break;
-                case EAST:
-                    matrix[row][col+i] = -1;
-                    break;
-            }
-        }
-        outPutList.add(new int []{row, col, dir.toInt()});
-    }
-
+    
 
 }
-
-
-
-
-
-
-    //Vi kan checka om den krockar mot staket eller träd mot north. Om den gör det så köra opposite. Annars Kör west och ananrs opposite. 
-    /**if(hitFence(row, col, treeHeight, dir) && hitTree(row, col, treeHeight, dir)){
-    if(!canCutTree(row, col, treeHeight, dir.opposite())){
-        return canCutTree(row, col, treeHeight, Direction.values()[(dir.ordinal()+1)]);
-    }else{
-        return false;
-    }
-}else{
-    return true;
-}*/
-
-
-/**
- * 
- * 1. If the spot we are on is bigger than 1 there is a tree and we want to try and cut it.
- * 2. -1 represents fallen tree, 0 represents grass, 1 represents stone and any value above 1 is a tree. 
- * 3. If canCutTree returns the Direction NULL then there isn't any direction we can cut the tree. 
- * 
- */
