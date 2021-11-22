@@ -9,7 +9,6 @@ public class Solver {
     private int width;
     private int height;
     private int[][] startingMatrix;
-    public int finalHeight;
     List<int[]> bestMove = new ArrayList<>();
     public int bestScore = 0;
     HashMap<Integer, List<int[]>> solutionMap = new HashMap<>();
@@ -51,12 +50,7 @@ public class Solver {
 
     public int[][] solve(int[][] matrix){
         this.startingMatrix = matrix;
-        pleaseWork(0,0,0,matrix, new LinkedList<int[]>());
-        for(int[] i : bestMove){
-            for(int j : i){
-                System.out.println(j);
-            }
-        }
+        pleaseWork(0,0,0, matrix, new LinkedList<int[]>());
         return bestMove.toArray(new int[0][]);
     }
 
@@ -94,7 +88,7 @@ public class Solver {
 
         int currentHeight = matrix[row][col];
         if(currentHeight < 2){
-            pleaseWork(row, col+1, totalHeight, matrix, moves);
+            pleaseWork(row, col+1, totalHeight, matrix, new ArrayList<>(moves));
             return;
         }
 
@@ -105,7 +99,7 @@ public class Solver {
         directions.add(null);
         for(Direction d : directions){
             cutTree(row, col, currentHeight, d, matrix, moves);
-            pleaseWork(row, col, totalHeight, matrix, moves);
+            pleaseWork(row, col+1, totalHeight, matrix, new ArrayList<>(moves));
         }
     }
 
