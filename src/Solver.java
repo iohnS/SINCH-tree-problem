@@ -54,25 +54,6 @@ public class Solver {
         return bestMove.toArray(new int[0][]);
     }
 
-
-    /**
-     * 
-     * REKURSIONEN MÅSTE TA MED SIN EGNA OUTMATRIX 
-     * 
-     * Basfall:
-     * B1: Listan är slut
-     * B2: Inga fler träd att hugga. 
-     * 
-     * 1. Kolla basfall 
-     * 2. Kolla om platsen vi är på är ett träd eller inte. 
-     *      2.1. Om det INTE är ett träd så försöker vi hitta ett träd. 
-     *      2.2. Om det är ett träd -> 3.
-     * 3. Så vill vi kolla vilka håll trädet kan fällas. Fäll sedan trädet åt det hållet. 
-     * 
-     * 1. För varje rekursiv vill jag först kolla hitta alla cuttable direcations. Sen cutta i alla de directions. Sen fortsätta till nästa träd. 
-     */
-
-
     private void pleaseWork(int row, int col, int totalHeight, int[][] matrix, List<int[]> moves){
         if(col >= width){
             row += 1;
@@ -180,8 +161,5 @@ public class Solver {
         }
         return false;
     }
-
-
-    
 
 }

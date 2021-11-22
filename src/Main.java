@@ -16,9 +16,10 @@ public class Main {
             {0,4,0,0,3,0},
             {6,0,0,0,0,5}
         };
+
         Solver solver = new Solver();
-        solver.setup(6, 3);
-        int[][] outMatrix = solver.solve(example1);
+        solver.setup(6, 6);
+        int[][] outMatrix = solver.solve(example2);
         
         System.out.println(solver.bestScore);
         int[][] matrix = solver.getMatrix();
